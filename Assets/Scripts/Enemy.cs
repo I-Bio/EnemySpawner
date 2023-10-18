@@ -1,17 +1,24 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private float _speed;
-    [SerializeField] private float _stopDistance;
+    [SerializeField] private Type _type;
     
-    private Rigidbody2D _rigidbody;
-    private Vector3 _movePosition;
+    private Transform _target;
     
+    private enum Type
+    {
+        Standard,
+        Fast,
+        Slow,
+        Big,
+        Small,
+    }
+
     private void Start()
     {
-        _rigidbody = GetComponent<Rigidbody2D>();
+        SetTypeFeatures();
     }
 
     private void Update()
@@ -19,21 +26,39 @@ public class Enemy : MonoBehaviour
         Move();
     }
 
-    public void SetDirection(Vector3 movePosition)
+    public void SetTarget(Transform target)
     {
-        _movePosition = movePosition;
+        _target = target;
     }
 
     private void Move()
     {
-        if (Vector2.Distance(transform.position, _movePosition) >= _stopDistance)
+        transform.position =  Vector3.MoveTowards(transform.position, _target.position, _speed * Time.deltaTime);
+    }
+
+    private void SetTypeFeatures()
+    {
+        switch (_type)
         {
-            Vector2 moveDirection = (_movePosition - transform.position).normalized;
-            _rigidbody.velocity = moveDirection * _speed;
-        }
-        else
-        {
-            _rigidbody.velocity = Vector2.zero;
+            case Type.Fast:
+                float speedIncrease = 2f;
+                _speed *= speedIncrease;
+                break;
+            
+            case Type.Slow:
+                float speedDecrease = 0.5f;
+                _speed *= speedDecrease;
+                break;
+            
+            case Type.Big:
+                float sizeIncrease = 2f;
+                transform.localScale = new Vector3(transform.localScale.x * sizeIncrease, transform.localScale.y * sizeIncrease, 0);
+                break;
+            
+            case Type.Small:
+                float sizeDecrease = 0.5f;
+                transform.localScale = new Vector3(transform.localScale.x * sizeDecrease, transform.localScale.y * sizeDecrease, 0);
+                break;
         }
     }
 }

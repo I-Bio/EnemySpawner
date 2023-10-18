@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -5,46 +6,29 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private Enemy _template;
     [SerializeField] private float _spawnTime;
     
-    private Transform[] _points;
+    private Transform _target;
     private float _currentTime;
-    
+
     private void Start()
     {
-        CollectSpawnPoints();
+        StartCoroutine(Spawn());
     }
 
-    private void Update()
+    public void SetTarget(Transform target)
     {
-        Spawn();
+        _target = target;
     }
-
-    private void CollectSpawnPoints()
+    
+    private IEnumerator Spawn()
     {
-        _points = new Transform[transform.childCount];
+        var waitTime = new WaitForSeconds(_spawnTime);
 
-        for (int i = 0; i < transform.childCount; i++)
+        while (Application.isPlaying)
         {
-            _points[i] = transform.GetChild(i);
-        }
-    }
-
-    private void Spawn()
-    {
-        if (_currentTime >= _spawnTime)
-        {
-            var enemy = Instantiate(_template, GetRandomPointPosition(), Quaternion.identity);
+            var enemy = Instantiate(_template, transform.position, Quaternion.identity);
             
-            enemy.SetDirection(GetRandomPointPosition());
-            _currentTime = 0f;
+            enemy.SetTarget(_target);
+            yield return waitTime;
         }
-        else
-        {
-            _currentTime += Time.deltaTime;
-        }
-    }
-
-    private Vector3 GetRandomPointPosition()
-    {
-        return _points[Random.Range(0, _points.Length)].position;
     }
 }
