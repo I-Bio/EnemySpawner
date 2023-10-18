@@ -6,12 +6,7 @@ public class Target : MonoBehaviour
     
     private Transform[] _points;
     private int _currentPoint;
-    
-    private void Start()
-    {
-        
-    }
-    
+
     public void Update()
     {
         Move();
